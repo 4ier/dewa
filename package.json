@@ -18,7 +18,7 @@
     "bilibili",
     "yt-dlp"
   ],
-  "author": "Your Name",
+  "author": "4ier <4ier@example.com>",
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^0.5.0",
@@ -41,6 +41,11 @@
   "engines": {
     "node": ">=18.0.0"
   },
+  "files": [
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
   "mcp": {
     "server": {
       "name": "dewa",
