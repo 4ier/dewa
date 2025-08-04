@@ -130,7 +130,7 @@ class DewaServer {
   async start() {
     try {
       // 验证配置
-      validateConfig();
+      await validateConfig();
       
       // 创建传输层
       const transport = new StdioServerTransport();

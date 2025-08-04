@@ -6,6 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 import { logger } from './logger.js';
+import { ensureYtDlp } from './yt-dlp-installer.js';
 
 // 默认配置
 const DEFAULT_CONFIG = {
@@ -14,7 +15,7 @@ const DEFAULT_CONFIG = {
   logLevel: 'INFO',
   
   // 下载配置
-  ytDlpPath: '/usr/local/bin/yt-dlp',
+  ytDlpPath: null,  // 将通过自动检测确定
   maxRetries: 10,
   fragmentRetries: 10,
   concurrentFragments: 4,
@@ -30,8 +31,8 @@ const DEFAULT_CONFIG = {
 /**
  * 验证配置
  */
-export function validateConfig() {
-  const config = getConfig();
+export async function validateConfig() {
+  const config = await getConfig();
   const errors = [];
   
   // 验证必需路径
@@ -39,10 +40,9 @@ export function validateConfig() {
     errors.push('Download path is required');
   }
   
+  // yt-dlp路径将在getConfig中自动确保可用
   if (!config.ytDlpPath) {
-    errors.push('yt-dlp path is required');
-  } else if (!fs.existsSync(config.ytDlpPath)) {
-    errors.push(`yt-dlp not found at: ${config.ytDlpPath}`);
+    errors.push('yt-dlp could not be found or installed');
   }
   
   // 验证下载路径权限
@@ -81,7 +81,7 @@ export function validateConfig() {
 /**
  * 获取当前配置
  */
-export function getConfig() {
+export async function getConfig() {
   const config = { ...DEFAULT_CONFIG };
   
   // 从环境变量覆盖配置
@@ -93,8 +93,15 @@ export function getConfig() {
     config.logLevel = process.env.LOG_LEVEL;
   }
   
-  if (process.env.YT_DLP_PATH) {
-    config.ytDlpPath = process.env.YT_DLP_PATH;
+  // 确保yt-dlp可用（自动检测或安装）
+  try {
+    config.ytDlpPath = await ensureYtDlp();
+  } catch (error) {
+    logger.error('Failed to ensure yt-dlp availability:', error);
+    // 如果有环境变量指定路径，使用它作为后备
+    if (process.env.YT_DLP_PATH) {
+      config.ytDlpPath = process.env.YT_DLP_PATH;
+    }
   }
   
   if (process.env.MAX_RETRIES) {
@@ -128,8 +135,8 @@ export function getConfig() {
 /**
  * 获取特定配置项
  */
-export function getConfigValue(key, defaultValue = null) {
-  const config = getConfig();
+export async function getConfigValue(key, defaultValue = null) {
+  const config = await getConfig();
   return config[key] !== undefined ? config[key] : defaultValue;
 }
 
@@ -137,12 +144,12 @@ export function getConfigValue(key, defaultValue = null) {
 /**
  * 获取配置摘要（用于日志）
  */
-export function getConfigSummary() {
-  const config = getConfig();
+export async function getConfigSummary() {
+  const config = await getConfig();
   
   return {
     downloadPath: config.downloadPath,
-    ytDlpPath: config.ytDlpPath,
+    ytDlpPath: config.ytDlpPath ? 'detected' : 'not found',
     defaultQuality: config.defaultQuality,
     autoCleanup: config.autoCleanup,
     maxRetries: config.maxRetries
@@ -156,24 +163,13 @@ export function createExampleConfig() {
   const exampleEnv = `# DEWA - Download Everything With AI MCP Server Configuration
 
 # 基础配置
-DOWNLOAD_PATH=/mnt/share/movie
+DOWNLOAD_PATH=/your/download/path
 LOG_LEVEL=INFO
 
-# yt-dlp配置  
-YT_DLP_PATH=/usr/local/bin/yt-dlp
-MAX_RETRIES=10
-CONCURRENT_FRAGMENTS=4
-THROTTLED_RATE=100K
-DEFAULT_QUALITY=best
-
-# 文件管理配置
-AUTO_CLEANUP=true
-KEEP_FRAGMENTS=false
-DOWNLOAD_HISTORY_RETENTION_DAYS=30
-
-# MCP服务器配置
-SERVER_NAME=dewa
-SERVER_VERSION=1.0.0
+# 可选配置 - 系统会自动检测和安装yt-dlp
+# YT_DLP_PATH=/custom/path/to/yt-dlp
+# DEFAULT_QUALITY=best
+# AUTO_CLEANUP=true
 `;
 
   return exampleEnv;

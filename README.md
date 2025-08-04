@@ -6,6 +6,7 @@
 
 - 🤖 **MCP标准兼容** - 支持Claude Code和其他MCP客户端
 - 🔗 **直接URL下载** - 支持YouTube、Bilibili等主流平台
+- 🤖 **零配置依赖** - 自动检测和安装yt-dlp
 - 📁 **智能文件管理** - 自动分类和命名
 - ⚡ **断点续传** - 网络中断后可恢复下载
 - 🧹 **自动清理** - 下载完成后清理碎片文件
@@ -29,8 +30,8 @@ npm install
 ### 3. 配置环境变量
 
 ```bash
-cp .env.example .env
-# 编辑 .env 文件设置下载路径和API密钥
+# 只需要配置下载路径
+export DOWNLOAD_PATH=/your/download/path
 ```
 
 ### 4. 启动MCP服务器
@@ -113,22 +114,21 @@ dewa/
 
 ### 环境变量
 
+只需要配置下载路径，其他都会自动处理：
+
 ```bash
-# 基础配置
-DOWNLOAD_PATH=/mnt/share/movie  # 下载目录
-LOG_LEVEL=info                  # 日志级别
+# 必需配置
+DOWNLOAD_PATH=/your/download/path
 
-# yt-dlp配置
-YT_DLP_PATH=/usr/local/bin/yt-dlp
-MAX_RETRIES=10
-CONCURRENT_FRAGMENTS=4
-THROTTLED_RATE=100K
-DEFAULT_QUALITY=best
+# 可选配置  
+LOG_LEVEL=info                    # 日志级别，默认INFO
+DEFAULT_QUALITY=best              # 默认视频质量
+AUTO_CLEANUP=true                 # 自动清理临时文件，默认true
 
-# 文件管理配置
-AUTO_CLEANUP=true
-KEEP_FRAGMENTS=false
-DOWNLOAD_HISTORY_RETENTION_DAYS=30
+# 高级配置（通常不需要修改）
+# YT_DLP_PATH=/custom/path         # 自定义yt-dlp路径，系统会自动检测
+# MAX_RETRIES=10                   # 重试次数
+# CONCURRENT_FRAGMENTS=4           # 并发下载片段数
 ```
 
 ## 📖 使用示例
@@ -202,4 +202,3 @@ AI: 检测到YouTube链接，开始下载...
 
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp) - 强大的视频下载工具
 - [MCP SDK](https://github.com/modelcontextprotocol/sdk) - Model Context Protocol SDK
-- Wacken项目 - 提供了核心下载引擎基础
