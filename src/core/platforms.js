@@ -26,7 +26,7 @@ const PLATFORM_CONFIG = {
   'magentamusik.de': {
     name: 'magentamusik',
     displayName: 'MagentaMusik',
-    directory: 'wacken-open-air/2025',
+    directory: 'magentamusik',
     prefix: ''
   },
   'vimeo.com': {

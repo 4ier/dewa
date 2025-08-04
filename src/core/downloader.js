@@ -1,6 +1,6 @@
 /**
  * Core Video Downloader
- * 核心下载引擎，基于现有的wacken项目下载脚本
+ * 核心下载引擎
  */
 
 import { spawn } from 'child_process';
@@ -15,7 +15,7 @@ import { logger } from '../utils/logger.js';
 // 默认配置
 const DEFAULT_CONFIG = {
   downloadPath: process.env.DOWNLOAD_PATH || '/tmp/downloads',
-  ytDlpPath: process.env.YT_DLP_PATH || '/mnt/share/CACHEDEV1_DATA/homes/18617007050/codebase/wacken/yt-dlp',
+  ytDlpPath: process.env.YT_DLP_PATH || 'yt-dlp',
   maxRetries: 10,
   fragmentRetries: 10,
   concurrentFragments: 4,

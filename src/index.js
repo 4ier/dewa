@@ -28,7 +28,7 @@ import { validateConfig } from './utils/config.js';
 // 服务器配置
 const SERVER_INFO = {
   name: 'dewa',
-  version: '1.0.0',
+  version: '1.0.1',
   description: 'DEWA - Download Everything With AI using MCP integration',
   author: '4ier',
   homepage: 'https://github.com/4ier/dewa'

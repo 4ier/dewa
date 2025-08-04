@@ -1,6 +1,6 @@
 {
   "name": "dewa",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "DEWA - Download Everything With AI. A simple MCP server focused on video downloading and task management.",
   "main": "src/index.js",
   "type": "module",

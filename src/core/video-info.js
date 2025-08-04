@@ -6,7 +6,7 @@
 import { spawn } from 'child_process';
 import { logger } from '../utils/logger.js';
 
-const YT_DLP_PATH = process.env.YT_DLP_PATH || '/mnt/share/CACHEDEV1_DATA/homes/18617007050/codebase/wacken/yt-dlp';
+const YT_DLP_PATH = process.env.YT_DLP_PATH || 'yt-dlp';
 
 /**
  * 获取视频基本信息

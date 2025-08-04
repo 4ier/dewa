@@ -34,8 +34,8 @@ Features:
 
 Examples:
 - Direct: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-- Search: "download Wacken 2025 Metallica performance"
-- Chinese: "下载周杰伦稻香MV"
+- YouTube: "https://youtu.be/abc123"
+- Bilibili: "https://www.bilibili.com/video/BV1xx411c7mu"
   `,
   inputSchema: {
     type: 'object',

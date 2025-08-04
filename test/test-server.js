@@ -5,9 +5,8 @@
  * 测试MCP服务器的基本功能
  */
 
-import { NaturalVideoDownloaderServer } from '../src/index.js';
+import { DewaServer } from '../src/index.js';
 import { isDirectURL, isValidQuality } from '../src/utils/validators.js';
-import { parseNaturalQuery } from '../src/search/nlp-processor.js';
 import { detectPlatform } from '../src/core/platforms.js';
 import { logger } from '../src/utils/logger.js';
 
@@ -20,12 +19,11 @@ const TEST_CASES = {
     'https://www.magentamusik.de/test-video'
   ],
   
-  naturalLanguageQueries: [
-    '下载周杰伦稻香MV',
-    'download Taylor Swift latest song',
-    'Wacken 2025 Metallica performance',
-    '下载beyond光辉岁月演唱会版本',
-    'Rick Astley Never Gonna Give You Up'
+  directUrls: [
+    'https://www.youtube.com/watch?v=xyz123',
+    'https://youtu.be/abc456',
+    'https://www.bilibili.com/video/BV789',
+    'https://www.magentamusik.de/video/test'
   ],
   
   invalidInputs: [
@@ -59,15 +57,15 @@ function testURLDetection() {
     }
   });
   
-  // 测试自然语言查询
-  TEST_CASES.naturalLanguageQueries.forEach(query => {
+  // 测试无效输入
+  TEST_CASES.invalidInputs.forEach(input => {
     total++;
-    const isURL = isDirectURL(query);
+    const isURL = isDirectURL(input);
     if (!isURL) {
-      console.log(`✅ "${query}" -> Correctly identified as natural language`);
+      console.log(`✅ "${input}" -> Correctly identified as invalid`);
       passed++;
     } else {
-      console.log(`❌ "${query}" -> Incorrectly identified as URL`);
+      console.log(`❌ "${input}" -> Incorrectly identified as URL`);
     }
   });
   
@@ -108,34 +106,42 @@ function testPlatformDetection() {
 }
 
 /**
- * 测试自然语言处理
+ * 测试配置系统
  */
-function testNLPProcessing() {
-  console.log('\n🧪 Testing Natural Language Processing...');
+async function testConfigSystem() {
+  console.log('\n🧪 Testing Configuration System...');
   
   let passed = 0;
   let total = 0;
   
-  TEST_CASES.naturalLanguageQueries.forEach(query => {
+  try {
+    const { getConfig, validateConfig } = await import('../src/utils/config.js');
+    
+    total++;
+    const config = await getConfig();
+    if (config && config.downloadPath) {
+      console.log(`✅ Config loaded successfully`);
+      console.log(`   Download path: ${config.downloadPath}`);
+      console.log(`   yt-dlp path: ${config.ytDlpPath ? 'detected' : 'not found'}`);
+      passed++;
+    } else {
+      console.log(`❌ Config loading failed`);
+    }
+    
     total++;
     try {
-      const parsed = parseNaturalQuery(query);
-      
-      if (parsed && parsed.original === query && parsed.searchQuery) {
-        console.log(`✅ "${query}" -> Parsed successfully`);
-        console.log(`   Artist: ${parsed.artist || 'N/A'}`);
-        console.log(`   Type: ${parsed.contentType}`);
-        console.log(`   Language: ${parsed.language}`);
-        passed++;
-      } else {
-        console.log(`❌ "${query}" -> Parsing failed`);
-      }
+      await validateConfig();
+      console.log(`✅ Config validation passed`);
+      passed++;
     } catch (error) {
-      console.log(`❌ "${query}" -> Error: ${error.message}`);
+      console.log(`❌ Config validation failed: ${error.message}`);
     }
-  });
+    
+  } catch (error) {
+    console.log(`❌ Config system test failed: ${error.message}`);
+  }
   
-  console.log(`\n📊 NLP Processing: ${passed}/${total} tests passed`);
+  console.log(`\n📊 Configuration System: ${passed}/${total} tests passed`);
   return passed === total;
 }
 
@@ -192,12 +198,7 @@ function testMCPToolDefinitions() {
       console.log(`❌ Failed to load download_video tool: ${err.message}`);
     });
     
-    import('../src/tools/search-videos.js').then(({ searchVideosTool }) => {
-      console.log(`✅ search_videos tool loaded`);
-      console.log(`   Name: ${searchVideosTool.name}`);
-    }).catch(err => {
-      console.log(`❌ Failed to load search_videos tool: ${err.message}`);
-    });
+    // search_videos tool has been removed in the new architecture
     
     import('../src/tools/list-downloads.js').then(({ listDownloadsTool }) => {
       console.log(`✅ list_downloads tool loaded`);
@@ -228,7 +229,7 @@ async function testMCPToolCalls() {
     // 测试缺少必需参数
     try {
       await handleDownloadVideo({});
-      console.log('❌ Should have failed with missing query');
+      console.log('❌ Should have failed with missing url');
     } catch (error) {
       console.log('✅ Correctly rejected empty parameters');
     }
@@ -236,7 +237,7 @@ async function testMCPToolCalls() {
     // 测试无效质量参数
     try {
       await handleDownloadVideo({
-        query: 'https://www.youtube.com/watch?v=test',
+        url: 'https://www.youtube.com/watch?v=test',
         quality: 'invalid_quality'
       });
       console.log('❌ Should have failed with invalid quality');
@@ -257,7 +258,7 @@ async function testMCPToolCalls() {
  * 运行所有测试
  */
 async function runAllTests() {
-  console.log('🚀 Starting Natural Video Downloader MCP Server Tests\n');
+  console.log('🚀 Starting DEWA MCP Server Tests\n');
   console.log('=' .repeat(60));
   
   const testResults = [];
@@ -265,7 +266,7 @@ async function runAllTests() {
   // 运行各个测试
   testResults.push(testURLDetection());
   testResults.push(testPlatformDetection());
-  testResults.push(testNLPProcessing());
+  testResults.push(await testConfigSystem());
   testResults.push(testValidators());
   testResults.push(testMCPToolDefinitions());
   testResults.push(await testMCPToolCalls());
