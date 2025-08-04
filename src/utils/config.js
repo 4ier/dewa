@@ -21,20 +21,10 @@ const DEFAULT_CONFIG = {
   throttledRate: '100K',
   defaultQuality: 'best',
   
-  // 搜索配置
-  searchEnabled: false,
-  searchTimeout: 30000,
-  maxSearchResults: 10,
-  
   // 文件管理配置
   autoCleanup: true,
   keepFragments: false,
-  downloadHistoryRetentionDays: 30,
-  
-  // API配置
-  googleSearchApiKey: null,
-  googleSearchEngineId: null,
-  bingSearchApiKey: null
+  downloadHistoryRetentionDays: 30
 };
 
 /**
@@ -123,21 +113,6 @@ export function getConfig() {
     config.defaultQuality = process.env.DEFAULT_QUALITY;
   }
   
-  // 搜索API配置
-  if (process.env.GOOGLE_SEARCH_API_KEY) {
-    config.googleSearchApiKey = process.env.GOOGLE_SEARCH_API_KEY;
-    config.searchEnabled = true;
-  }
-  
-  if (process.env.GOOGLE_SEARCH_ENGINE_ID) {
-    config.googleSearchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID;
-  }
-  
-  if (process.env.BING_SEARCH_API_KEY) {
-    config.bingSearchApiKey = process.env.BING_SEARCH_API_KEY;
-    config.searchEnabled = true;
-  }
-  
   // 布尔值配置
   if (process.env.AUTO_CLEANUP) {
     config.autoCleanup = process.env.AUTO_CLEANUP.toLowerCase() === 'true';
@@ -158,16 +133,6 @@ export function getConfigValue(key, defaultValue = null) {
   return config[key] !== undefined ? config[key] : defaultValue;
 }
 
-/**
- * 检查搜索功能是否已配置
- */
-export function isSearchEnabled() {
-  const config = getConfig();
-  return config.searchEnabled && (
-    (config.googleSearchApiKey && config.googleSearchEngineId) ||
-    config.bingSearchApiKey
-  );
-}
 
 /**
  * 获取配置摘要（用于日志）
@@ -178,7 +143,6 @@ export function getConfigSummary() {
   return {
     downloadPath: config.downloadPath,
     ytDlpPath: config.ytDlpPath,
-    searchEnabled: isSearchEnabled(),
     defaultQuality: config.defaultQuality,
     autoCleanup: config.autoCleanup,
     maxRetries: config.maxRetries
@@ -189,7 +153,7 @@ export function getConfigSummary() {
  * 创建示例配置文件
  */
 export function createExampleConfig() {
-  const exampleEnv = `# Natural Video Downloader MCP Server Configuration
+  const exampleEnv = `# DEWA - Download Everything With AI MCP Server Configuration
 
 # 基础配置
 DOWNLOAD_PATH=/mnt/share/movie
@@ -202,18 +166,13 @@ CONCURRENT_FRAGMENTS=4
 THROTTLED_RATE=100K
 DEFAULT_QUALITY=best
 
-# 搜索功能配置（可选）
-# GOOGLE_SEARCH_API_KEY=your_google_api_key
-# GOOGLE_SEARCH_ENGINE_ID=your_search_engine_id
-# BING_SEARCH_API_KEY=your_bing_api_key
-
 # 文件管理配置
 AUTO_CLEANUP=true
 KEEP_FRAGMENTS=false
 DOWNLOAD_HISTORY_RETENTION_DAYS=30
 
 # MCP服务器配置
-SERVER_NAME=natural-video-downloader
+SERVER_NAME=dewa
 SERVER_VERSION=1.0.0
 `;
 

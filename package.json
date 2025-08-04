@@ -1,7 +1,7 @@
 {
   "name": "dewa",
   "version": "1.0.0",
-  "description": "DEWA - Download Everything With AI using MCP integration",
+  "description": "DEWA - Download Everything With AI. A simple MCP server focused on video downloading and task management.",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
@@ -12,12 +12,11 @@
   },
   "keywords": [
     "mcp",
-    "video-downloader", 
-    "ai-tools",
-    "natural-language",
+    "video-downloader",
+    "download-tool",
     "youtube",
     "bilibili",
-    "claude-code"
+    "yt-dlp"
   ],
   "author": "Your Name",
   "license": "MIT",

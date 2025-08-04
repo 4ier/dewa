@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * Natural Video Downloader MCP Server
- * 支持自然语言和URL的智能视频下载服务
+ * DEWA - Download Everything With AI MCP Server
+ * 专注于视频下载和任务管理的简单MCP服务器
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -21,7 +21,6 @@ dotenv.config();
 
 // 导入工具模块
 import { downloadVideoTool, handleDownloadVideo } from './tools/download-video.js';
-import { searchVideosTool, handleSearchVideos } from './tools/search-videos.js';
 import { listDownloadsTool, handleListDownloads } from './tools/list-downloads.js';
 import { logger } from './utils/logger.js';
 import { validateConfig } from './utils/config.js';
@@ -38,11 +37,10 @@ const SERVER_INFO = {
 // 支持的工具列表
 const TOOLS = [
   downloadVideoTool,
-  searchVideosTool,
   listDownloadsTool
 ];
 
-class NaturalVideoDownloaderServer {
+class DewaServer {
   constructor() {
     this.server = new Server(SERVER_INFO, {
       capabilities: {
@@ -73,9 +71,6 @@ class NaturalVideoDownloaderServer {
         switch (name) {
           case 'download_video':
             return await handleDownloadVideo(args || {});
-            
-          case 'search_videos':
-            return await handleSearchVideos(args || {});
             
           case 'list_downloads':
             return await handleListDownloads(args || {});
@@ -166,7 +161,7 @@ class NaturalVideoDownloaderServer {
 // 启动服务器
 async function main() {
   try {
-    const server = new NaturalVideoDownloaderServer();
+    const server = new DewaServer();
     await server.start();
   } catch (error) {
     logger.error('💥 Failed to start DEWA MCP Server:', error);
@@ -182,4 +177,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   });
 }
 
-export { NaturalVideoDownloaderServer, SERVER_INFO, TOOLS };
+export { DewaServer, SERVER_INFO, TOOLS };
